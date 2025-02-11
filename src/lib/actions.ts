@@ -2,6 +2,8 @@
 
 import { Desconto_fornecedor } from "@prisma/client";
 import prisma from "./prisma";
+import { SchemaCreateLancamento } from "@/app/(pages)/lancamentos/register/page";
+import { Lancamento } from "@/app/(pages)/lancamentos/list/page";
 
 export async function listFornecedores() {
   try {
@@ -63,7 +65,7 @@ export async function listTipos() {
   }
 }
 
-export async function createLancamento(data: Desconto_fornecedor) {
+export async function createLancamento(data: Omit<SchemaCreateLancamento, 'fornecedor_id' | 'tipo_id'> & { fornecedor_id: number; tipo_id: number; }) {
   try {
     const lancamento = await prisma.desconto_fornecedor.create({
       data: {

@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { Tipo } from "../../tipos/list/page";
 import { Fornecedor } from "../../fornecedores/list/page";
 
-type Lancamento = {
-  id?: number;
-  fornecedor: number;
-  tipo: number;
+export type Lancamento = {
+  fornecedor_id: number;
+  tipo_id: number;
+  valor: number;
   descricao: string;
   created_at: Date;
 }[]
@@ -20,9 +20,9 @@ export default function List() {
   useEffect(() => {
     listLancamentos()
       .then((data) => setLancamentos(data.map(item => ({
-        id: item.id,
-        fornecedor: item.fornecedor_id,
-        tipo: item.tipo_id,
+        fornecedor_id: item.fornecedor_id,
+        tipo_id: item.tipo_id,
+        valor: item.valor,
         descricao: item.descricao,
         created_at: item.created_at,
       }))))

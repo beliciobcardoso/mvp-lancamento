@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createTipo } from '@/lib/actions';
 import Header from '@/components/header';
@@ -14,8 +13,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function RegisterTipo() {
-    const [nome, setNome] = useState('');
-    const [error, setError] = useState<Error | null>(null);
     const router = useRouter();
 
      const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
