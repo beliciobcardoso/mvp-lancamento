@@ -8,13 +8,21 @@ import { useRouter } from "next/navigation";
 import { Tipo } from "../../tipos/list/page";
 import { useEffect, useState } from "react";
 import { Fornecedor } from "../../fornecedores/list/page";
+import { Input } from "@/components/ui/input";
 
 const schema = z.object({
   fornecedor_id: z.string().min(1, "Fornecedor é obrigatório"),
   tipo_id: z.string().min(1, "Tipo é obrigatório"),
-  valor: z.number().refine((value) => {
-    return !z.number().int().safeParse(value).success && z.number().finite().safeParse(value).success;
-  }, { message: "Valor é obrigatório" }),
+  valor: z
+  .string()
+  .transform((val) => {
+    // Remove separadores de milhares e substitui vírgula por ponto
+    const formatted = val.replace(/\./g, "").replace(",", ".");
+    return parseFloat(formatted);
+  })
+  .refine((val) => !isNaN(val) && val > 0, {
+    message: "O preço deve ser um número positivo",
+  }),
   descricao: z.string().min(1, "Descrição é obrigatório"),
 
 });
@@ -26,6 +34,13 @@ export default function Register() {
   const [tipos, setTipos] = useState<Tipo | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [fornecedores, setFornecedores] = useState<Fornecedor | null>(null);
+  const [price, setPrice] = useState("");
+
+const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  let value = e.target.value.replace(/\D/g, ""); // Remove caracteres não numéricos
+  let floatValue = parseFloat(value) / 100; // Converte para decimal (ex: 35612 → 356.12)
+  setPrice(floatValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 }));
+};
 
   useEffect(() => {
     listTipos()
@@ -80,17 +95,21 @@ export default function Register() {
             <label htmlFor="tipo_id">Tipo</label>
             <select id="tipo_id" {...register("tipo_id")} className="border p-2 w-full">
               {tipos?.map((tipo) => (
-              <option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+                <option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
               ))}
             </select>
             {errors.tipo_id && <p className="text-red-500">{errors.tipo_id.message}</p>}
           </div>
           <div>
             <label htmlFor="valor">Valor</label>
-            <input id="valor" type="number" step="0.01" min="0" {...register("valor", { 
-              valueAsNumber: true,
-              setValueAs: v => parseFloat(parseFloat(v).toFixed(2))
-            })} className="border p-2 w-full" />
+            <Input
+              type="text"
+              id="valor"
+              {...register("valor")}  
+              value={price}
+              placeholder="00,00"
+              onChange={handlePriceChange}
+            />
             {errors.valor && <p className="text-red-500">{errors.valor.message}</p>}
           </div>
           <div>

@@ -16,6 +16,13 @@ export default function List() {
   const [lancamentos, setLancamentos] = useState<Lancamento | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
   useEffect(() => {
     listLancamentos()
       .then((data) => setLancamentos(data.map(item => ({
@@ -25,7 +32,6 @@ export default function List() {
         valor: item.valor,
         descricao: item.descricao,
         created_at: item.created_at,
-
       }))))
       .catch((err) => setError(err));      
   }, []);
@@ -72,13 +78,13 @@ export default function List() {
                 <div className="text-sm text-gray-900">{lancamento.tipoName}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{lancamento.valor}</div>
+                <div className="text-sm text-gray-900">{formatCurrency(lancamento.valor)}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{lancamento.descricao}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{lancamento.created_at.toLocaleDateString()}</div>
+                <div className="text-sm text-gray-900">{lancamento.created_at.toLocaleDateString() +" - "+ lancamento.created_at.toLocaleTimeString()}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <a href={`/lancamentos/edit/${lancamento.id}`} className="text-indigo-600 hover:text-indigo-900">Editar</a>
