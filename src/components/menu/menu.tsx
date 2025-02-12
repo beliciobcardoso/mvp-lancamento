@@ -6,6 +6,16 @@ const data = [
         url: "/",
     },
     {
+        name: "Custos Lançados",
+        url: "/custos",
+        subitems: [
+            {
+                name: "Debitar Custos",
+                url: "/custos/debit",
+            },
+        ],
+    },
+    {
         name: "Lançamentos",
         url: "/lancamentos",
         subitems: [
