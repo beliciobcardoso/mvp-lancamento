@@ -159,6 +159,22 @@ export async function listLancamentos() {
   }
 }
 
+export async function getLancamentoById(fornecedor_id: number) {
+  try {
+    const lancamento = await prisma.lancamento_fornecedor.findFirst({
+      where: {
+        fornecedor_id,
+      },
+    });
+    return lancamento;
+  } catch (error) {
+    console.error('Erro ao buscar lancamento:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function debitLancamento(id: number, valor: number) {
   try {
     const fornecedor = await prisma.lancamento_fornecedor.findUnique({
