@@ -1,9 +1,6 @@
 'use server';
-
-import { Desconto_fornecedor } from "@prisma/client";
 import prisma from "./prisma";
 import { SchemaCreateLancamento } from "@/app/(pages)/lancamentos/register/page";
-import { Lancamento } from "@/app/(pages)/lancamentos/list/page";
 
 export async function listFornecedores() {
   try {
@@ -11,6 +8,22 @@ export async function listFornecedores() {
     return fornecedores;
   } catch (error) {
     console.error('Erro ao listar fornecedores:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function getFornecedorById(id: number) {
+  try {
+    const fornecedor = await prisma.fornecedor.findUnique({
+      where: {
+        id,
+      },
+    });
+    return fornecedor;
+  } catch (error) {
+    console.error('Erro ao buscar fornecedor:', error);
     throw error;
   } finally {
     await prisma.$disconnect();
@@ -84,7 +97,29 @@ export async function createLancamento(data: Omit<SchemaCreateLancamento, 'forne
 
 export async function listLancamentos() {
   try {
-    const lancamentos = await prisma.desconto_fornecedor.findMany();
+    const lancamentos = await prisma.desconto_fornecedor.findMany({
+      select: {
+        id: true,
+        fornecedor_id: true,
+        tipo_id: true,
+        valor: true,
+        descricao: true,
+        created_at: true,
+        fornecedor: {
+          select: {
+            nome: true,
+          },
+        },
+        tipo: {
+          select: {
+            nome: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
     return lancamentos;
   } catch (error) {
     console.error('Erro ao listar lancamentos:', error);

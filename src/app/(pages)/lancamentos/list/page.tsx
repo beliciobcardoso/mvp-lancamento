@@ -2,12 +2,11 @@
 import Header from "@/components/header";
 import { listLancamentos } from "@/lib/actions";
 import { useEffect, useState } from "react";
-import { Tipo } from "../../tipos/list/page";
-import { Fornecedor } from "../../fornecedores/list/page";
 
 export type Lancamento = {
-  fornecedor_id: number;
-  tipo_id: number;
+  id: number;
+  fornecedorName: string;
+  tipoName: string;
   valor: number;
   descricao: string;
   created_at: Date;
@@ -20,16 +19,16 @@ export default function List() {
   useEffect(() => {
     listLancamentos()
       .then((data) => setLancamentos(data.map(item => ({
-        fornecedor_id: item.fornecedor_id,
-        tipo_id: item.tipo_id,
+        id: item.id,
+        fornecedorName: item.fornecedor.nome,
+        tipoName: item.tipo.nome,
         valor: item.valor,
         descricao: item.descricao,
         created_at: item.created_at,
+
       }))))
-      .catch((err) => setError(err));
+      .catch((err) => setError(err));      
   }, []);
-
-
 
   return (
     <main className="flex flex-col">
@@ -47,6 +46,9 @@ export default function List() {
               Tipo de lançamento
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Valor
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Descrição
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -58,6 +60,31 @@ export default function List() {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
+          {lancamentos?.map((lancamento, index) => (
+            <tr key={index}>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{lancamento.id}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{lancamento.fornecedorName}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{lancamento.tipoName}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{lancamento.valor}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{lancamento.descricao}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">{lancamento.created_at.toLocaleDateString()}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <a href={`/lancamentos/edit/${lancamento.id}`} className="text-indigo-600 hover:text-indigo-900">Editar</a>
+              </td>
+            </tr>
+          ))}
           </tbody>
       </table>
     </main>
