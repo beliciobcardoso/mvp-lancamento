@@ -35,7 +35,7 @@ export async function getFornecedorByName(nome: string) {
     const fornecedor = await prisma.fornecedor.findFirst({
       where: {
         nome: {
-          endsWith: nome,
+          contains: nome,
         }
       },
     });
@@ -161,12 +161,38 @@ export async function listLancamentos() {
 
 export async function getLancamentoById(fornecedor_id: number) {
   try {
-    const lancamento = await prisma.lancamento_fornecedor.findFirst({
+    const lancamentos = await prisma.lancamento_fornecedor.findMany({
       where: {
         fornecedor_id,
       },
     });
-    return lancamento;
+    return lancamentos;
+  } catch (error) {
+    console.error('Erro ao buscar lancamento:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function getTotalLancamentoById(fornecedor_id: number) {
+  try {
+    const lancamento = await prisma.lancamento_fornecedor.findMany({
+      where: {
+        fornecedor_id,
+      },
+      select: {
+        valor: true,
+      }
+    });
+
+    if (!lancamento) {
+      throw new Error('Lancamento não encontrado');
+    }
+
+    const totalDebitado = lancamento.reduce((total, item) => total + item.valor, 0);
+
+    return totalDebitado;
   } catch (error) {
     console.error('Erro ao buscar lancamento:', error);
     throw error;
