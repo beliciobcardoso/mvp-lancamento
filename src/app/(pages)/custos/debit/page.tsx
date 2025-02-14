@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { getFornecedorByName, getLancamentoById } from "@/lib/actions";
+import { getFornecedorByName, getLancamentoById, getTotalLancamentoById } from "@/lib/actions";
+import { formatCurrency } from "@/lib/formatCurrency";
 import { useEffect, useState } from "react";
 
-type Fornecedor = { id: number; nome: string; cnpj: string; created_at: Date; updated_at: Date; } | null;
+type Fornecedor = { id: number; nome: string; cnpj: string; created_at: Date; updated_at: Date; }
 type Lancamento = {
     id: number;
     fornecedor_id: number;
@@ -19,13 +20,17 @@ type Lancamento = {
 };
 
 export default function Debit() {
-    const [fornecedor, setFornecedor] = useState<Fornecedor>(null);
+    const [fornecedor, setFornecedor] = useState<Fornecedor | null>(null);
     const [fornecedorName, setFornecedorName] = useState("");
+    const [totalDividas, setTotalDividas] = useState<number | null>(null);
+    const [lancamento, setLancamento] = useState<number | null>(null);
+    const [saldo, setSaldo] = useState<number | null>(null);
+    const [debitar, setDebitar] = useState<number | null>(null);
+    const [saldoDebitar, setSaldoDebitar] = useState<number | null>(null);
     const [error, setError] = useState<Error | null>(null);
-    const [lancamento, setLancamento] = useState<Lancamento | null>();
 
     useEffect(() => {
-        if (fornecedorName) {
+        if (fornecedorName !== "") {
             const delayDebounceFn = setTimeout(() => {
                 const res = getFornecedorByName(fornecedorName).then((fornecedor) => {
                     if (fornecedor) {
@@ -37,23 +42,22 @@ export default function Debit() {
             }, 300); // delay for 300ms
 
             return () => clearTimeout(delayDebounceFn);
+        } else {
+            setFornecedor(null)
         }
     }, [fornecedorName]);
 
     useEffect(() => {
-        if (fornecedor) {
-            getLancamentoById(fornecedor.id).then((lancamento) => {
-                return setLancamento(lancamento);
+        if (fornecedor !== null) {
+            getTotalLancamentoById(fornecedor.id).then((total) => {
+                return setTotalDividas(total);
             }).catch((error) => {
                 setError(error);
             });
+        } else {
+            setTotalDividas(null);
         }
     }, [fornecedor]);
-
-
-console.log(lancamento)
-console.log(fornecedor)
-
 
     return (
         <main className="flex flex-col">
@@ -70,7 +74,7 @@ console.log(fornecedor)
                 </div>
                 <div>
                     <h1>{!fornecedor ? "Fornecedor..." : fornecedor.nome}</h1>
-                    <h2>{`Total de dividas: R$ ${lancamento?.valor}`}</h2>
+                    <h2>{`Total de dividas: ${totalDividas === null ? "00,00" : formatCurrency(totalDividas)}`}</h2>
                     <div className="flex items-center gap-2">
                         <Label>Descontar</Label>
                         <Input placeholder="2.000,00" className="w-22" />
