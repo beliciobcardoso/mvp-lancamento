@@ -1,6 +1,7 @@
 'use client';
 import Header from "@/components/header";
 import { listLancamentos } from "@/lib/actions";
+import { formatCurrency } from "@/lib/formatCurrency";
 import { useEffect, useState } from "react";
 
 export type Lancamento = {
@@ -15,13 +16,6 @@ export type Lancamento = {
 export default function List() {
   const [lancamentos, setLancamentos] = useState<Lancamento | null>(null);
   const [error, setError] = useState<Error | null>(null);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
 
   useEffect(() => {
     listLancamentos()
